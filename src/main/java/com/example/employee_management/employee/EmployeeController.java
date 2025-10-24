@@ -1,40 +1,76 @@
 package com.example.employee_management.employee;
 
-import jakarta.annotation.PostConstruct;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 
 @RestController
 @RequestMapping("/api/v1/employees")
 public class EmployeeController {
-    // A temporary list used to store data (in-memory)
-    private final List<Employee> employees = new ArrayList<>();
-    private final AtomicLong counter = new AtomicLong();
+    private final EmployeeService employeeService;
 
-    @PostConstruct
-    public void initData() {
-        employees.add(new Employee(counter.incrementAndGet(), "John Doe", "john@example.com"));
-        employees.add(new Employee(counter.incrementAndGet(), "Jane Smith", "jane@example.com"));
+    public EmployeeController(EmployeeService employeeService) {
+        this.employeeService = employeeService;
     }
 
     // URL: GET http://localhost:8088/api/v1/employees
     @GetMapping
     public ResponseEntity<List<Employee>> getAllEmployees() {
-        // Return the list of employees and HTTP status 200 (OK)
+        List<Employee> employees = employeeService.getAllEmployees();
         return ResponseEntity.ok(employees);
     }
 
     // URL: POST http://localhost:8088/api/v1/employees
     @PostMapping
     public ResponseEntity<Employee> createEmployee(@RequestBody Employee newEmployee) {
-        newEmployee.setId(counter.incrementAndGet());
-        employees.add(newEmployee);
+        Employee savedEmployee = employeeService.createEmployee(newEmployee);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedEmployee);
+    }
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(newEmployee);
+    // URL: GET http://localhost:8088/api/v1/employees/{id}
+    @GetMapping("/{id}")
+    public ResponseEntity<Employee> getEmployeeById(@PathVariable Long id) {
+        return employeeService.getEmployeeById(id)
+                .map(employee -> ResponseEntity.ok(employee))
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    // URL: PUT http://localhost:8088/api/v1/employees/{id}
+    @PutMapping("/{id}")
+    public ResponseEntity<Employee> updateEmployee(
+            @PathVariable Long id,
+            @RequestBody Employee employeeDetails) {
+        try {
+            Employee updatedEmployee = employeeService.updateEmployee(id, employeeDetails);
+
+            return ResponseEntity.ok(updatedEmployee);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    // URL: DELETE http://localhost:8088/api/v1/employees/{id}
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteEmployee(@PathVariable Long id) {
+        try {
+            employeeService.deleteEmployee(id);
+
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    // URL: GET /api/v1/employees/search?name=John
+    // URL: GET /api/v1/employees/search?departmentId=1
+    @GetMapping("/search")
+    public ResponseEntity<List<Employee>> searchEmployees(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) Long departmentId) {
+
+        List<Employee> result = employeeService.searchEmployees(name, departmentId);
+        return ResponseEntity.ok(result);
     }
 }
