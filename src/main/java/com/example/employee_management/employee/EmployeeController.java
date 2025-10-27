@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/employees")
@@ -65,5 +66,13 @@ public class EmployeeController {
 
         List<Employee> result = employeeService.searchEmployees(name, departmentId);
         return ResponseEntity.ok(result);
+    }
+
+    // URL: GET /api/v1/employees/count
+    @GetMapping("/count")
+    public ResponseEntity<Map<String, Long>> getEmployeeCount() {
+        long count = employeeService.countEmployees();
+
+        return ResponseEntity.ok(Map.of("totalEmployees", count));
     }
 }
