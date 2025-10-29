@@ -50,3 +50,5 @@ build/
 *.db
 *.mv.db
 *.trace.db
+
+src/main/resources/.env

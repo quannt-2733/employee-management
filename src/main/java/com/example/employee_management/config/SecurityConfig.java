@@ -18,7 +18,7 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests(
                 authorize -> authorize
-                    .requestMatchers("/hello", "/api/v1/employees/**", "/employees/**").permitAll()
+                    .requestMatchers("/hello", "/api/v1/employees/**", "/employees/**", "/actuator/**").permitAll()
                 .anyRequest().authenticated()
             )
             .formLogin(withDefaults());
