@@ -14,14 +14,14 @@ public class ServiceTestRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        // 3. Đây là nơi code của bạn sẽ chạy sau khi app khởi động
-        System.out.println("=========================================");
-        System.out.println("BẮT ĐẦU CHẠY THỬ UserService...");
+        try {
+            userService.registerUser("user", "user123");
+            System.out.println("CREATED DEFAULT USER: user/user123");
 
-        // Gọi phương thức bạn muốn kiểm tra
-        userService.registerUser("admin", "admin_password123");
-
-        System.out.println("KẾT THÚC CHẠY THỬ.");
-        System.out.println("=========================================");
+             userService.registerAdmin("admin", "admin123");
+            System.out.println("CREATED DEFAULT ADMIN: admin/admin123");
+        } catch (Exception e) {
+            System.out.println("Default user 'user' might already exist.");
+        }
     }
 }
