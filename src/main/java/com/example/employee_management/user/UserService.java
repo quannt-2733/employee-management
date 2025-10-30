@@ -1,35 +1,70 @@
 package com.example.employee_management.user;
 
+import com.example.employee_management.exception.UserAlreadyExistsException;
+import com.example.employee_management.role.Role;
+import com.example.employee_management.role.RoleRepository;
+import org.springframework.dao.DataAccessException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Set;
 
 @Service
 public class UserService {
     private final PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
 
-    public UserService(PasswordEncoder passwordEncoder) {
+    public UserService(PasswordEncoder passwordEncoder, UserRepository userRepository, RoleRepository roleRepository) {
         this.passwordEncoder = passwordEncoder;
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
     }
 
-    /**
-     * Hàm ví dụ để đăng ký người dùng mới.
-     * @param username Tên đăng nhập
-     * @param rawPassword Mật khẩu thô (chưa mã hóa)
-     */
-    public void registerUser(String username, String rawPassword) {
-        // 1. Mã hóa mật khẩu thô
-        String encodedPassword = passwordEncoder.encode(rawPassword);
+    @Transactional(rollbackFor = Exception.class)
+    public User registerUser(String username, String rawPassword) {
+        String normalizedUsername = username.toLowerCase();
 
-        // 2. Tạo đối tượng User mới
-        // User newUser = new User();
-        // newUser.setUsername(username);
-        // newUser.setPassword(encodedPassword);
+        if (userRepository.findByUsernameIgnoreCase(normalizedUsername).isPresent()) {
+            throw new UserAlreadyExistsException("Username '" + username + "' is already taken.");
+        }
 
-        // 3. Lưu vào database (sẽ làm ở Module 3)
-        // userRepository.save(newUser);
+        try {
+            Role userRole = roleRepository.findByName("USER")
+                .orElseGet(() -> roleRepository.save(new Role("USER")));
 
-        System.out.println("Đăng ký người dùng: " + username);
-        System.out.println("Mật khẩu thô: " + rawPassword);
-        System.out.println("Mật khẩu đã mã hóa: " + encodedPassword);
+            User newUser = new User();
+            newUser.setUsername(username);
+            newUser.setPassword(passwordEncoder.encode(rawPassword));
+            newUser.setRoles(Set.of(userRole));
+
+            return userRepository.save(newUser);
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Failed to register user due to database error.", e);
+        }
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public User registerAdmin(String username, String rawPassword) {
+        String normalizedUsername = username.toLowerCase();
+
+        if (userRepository.findByUsernameIgnoreCase(normalizedUsername).isPresent()) {
+            throw new UserAlreadyExistsException("Username '" + username + "' is already taken.");
+        }
+
+        try {
+            Role adminRole = roleRepository.findByName("ADMIN")
+                .orElseGet(() -> roleRepository.save(new Role("ADMIN")));
+
+            User newAdmin = new User();
+            newAdmin.setUsername(username);
+            newAdmin.setPassword(passwordEncoder.encode(rawPassword));
+            newAdmin.setRoles(Set.of(adminRole));
+
+            return userRepository.save(newAdmin);
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Failed to register user due to database error.", e);
+        }
     }
 }

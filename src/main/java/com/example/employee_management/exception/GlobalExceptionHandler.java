@@ -35,6 +35,22 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
+     *  Handle UserAlreadyExistsException (409 Conflict)
+     */
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleUserAlreadyExistsException(
+            UserAlreadyExistsException ex, WebRequest request) {
+
+        ErrorResponse errorResponse = new ErrorResponse(
+                new Date(),
+                HttpStatus.CONFLICT.value(), // 409
+                ex.getMessage(),
+                request.getDescription(false)
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+    }
+
+    /**
      * Handle validation errors (400 Bad Request)
      */
     @Override
