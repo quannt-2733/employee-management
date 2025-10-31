@@ -28,7 +28,7 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(HttpMethod.GET, "/employees", "/api/v1/employees/**").hasAnyAuthority("USER", "ADMIN")
-                .requestMatchers("/employees/add", "/employees/save", "/employees/edit/**", "/employees/delete/**").hasAuthority("ADMIN")
+                .requestMatchers("/employees/add", "/employees/save", "/employees/edit/**", "/employees/delete/**", "/employees/statistics").hasAuthority("ADMIN")
                 .requestMatchers(HttpMethod.POST, "/api/v1/employees/**").hasAuthority("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/api/v1/employees/**").hasAuthority("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/employees/**").hasAuthority("ADMIN")

@@ -1,5 +1,6 @@
 package com.example.employee_management.employee;
 
+import com.example.employee_management.dto.DepartmentStatisticDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -66,6 +67,13 @@ public class EmployeeController {
 
         List<Employee> result = employeeService.searchEmployees(name, departmentId);
         return ResponseEntity.ok(result);
+    }
+
+    // URL: GET http://localhost:8088/api/v1/employees/statistics/department
+    @GetMapping("/statistics/department")
+    public ResponseEntity<List<DepartmentStatisticDTO>> getDepartmentStatistics() {
+        List<DepartmentStatisticDTO> stats = employeeService.getDepartmentStatistics();
+        return ResponseEntity.ok(stats);
     }
 
     // URL: GET /api/v1/employees/count

@@ -1,5 +1,6 @@
 package com.example.employee_management.employee;
 
+import com.example.employee_management.dto.DepartmentStatisticDTO;
 import com.example.employee_management.exception.ResourceNotFoundException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -71,6 +72,12 @@ public class EmployeeService {
         }
 
         return employeeRepository.findAll();
+    }
+
+    public List<DepartmentStatisticDTO> getDepartmentStatistics() {
+        logger.info("Fetching department statistics from database...");
+
+        return employeeRepository.countEmployeesByDepartment();
     }
 
     @Cacheable(cacheNames = "employeeCount")

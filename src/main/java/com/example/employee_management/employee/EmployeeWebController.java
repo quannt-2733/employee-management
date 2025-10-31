@@ -1,12 +1,14 @@
 package com.example.employee_management.employee;
 
 import com.example.employee_management.department.DepartmentService;
+import com.example.employee_management.dto.DepartmentStatisticDTO;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import java.util.List;
 
 @Controller
@@ -86,5 +88,19 @@ public class EmployeeWebController {
 
             return "employee-form";
         }
+    }
+
+    /**
+     * URL: GET /employees/statistics
+     */
+    @GetMapping("/statistics")
+    public String showStatisticsPage(Model model) {
+        List<DepartmentStatisticDTO> departmentStats = employeeService.getDepartmentStatistics();
+        long totalEmployees = employeeService.countEmployees();
+
+        model.addAttribute("departmentStats", departmentStats);
+        model.addAttribute("totalEmployees", totalEmployees);
+
+        return "employee-statistics";
     }
 }
